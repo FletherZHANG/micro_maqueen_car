@@ -24,7 +24,6 @@ DEALINGS IN THE SOFTWARE.
 */
 
 #include "MicroBit.h"
-#include "MicroBitI2C.h"
 
 #define MES_DPAD_CONTROLLER                 1104
 #define MES_DPAD_1_BUTTON_UP_ON             1
@@ -96,11 +95,13 @@ void writeLED(int led, int ledSwitch)
     if (led == ledLeft)
     {
         uBit.io.P8.setDigitalValue(ledSwitch);
+        uBit.io.P15.setDigitalValue(ledSwitch);
       
     }
     else if (led == ledRight)
     {
         uBit.io.P12.setDigitalValue(ledSwitch);
+        uBit.io.P15.setDigitalValue(ledSwitch);    
     }
     else
     {
@@ -124,13 +125,14 @@ void motorRun(int index, int dir, uint8_t speed)
     buf[2] = speed;
 
     ret = uBit.i2c.write(MOTER_ADDRESSS, buf, 3);
+    /*
     if (ret == MICROBIT_OK)
         uBit.display.print("O");
     else if (ret == MICROBIT_I2C_ERROR)
         uBit.display.print("E");
     else
     {
-    };
+    };*/
 }
 
 void motorStopAll()
@@ -152,8 +154,8 @@ void onControllerEvent(MicroBitEvent e)
     {
     case MES_DPAD_1_BUTTON_UP_ON:
         uBit.display.print("F");
-        motorRun(M1, CW, 50);
-        motorRun(M2, CW, 50);
+        motorRun(M1, CW, 150);
+        motorRun(M2, CW, 150);
         break;
 
     case MES_DPAD_1_BUTTON_UP_OFF:
@@ -161,7 +163,7 @@ void onControllerEvent(MicroBitEvent e)
         break;
 
     case MES_DPAD_1_BUTTON_DOWN_ON:
-        uBit.display.print("D");
+        uBit.display.print("B");
         motorRun(M1, CCW, 50);
         motorRun(M2, CCW, 50);
         break;
@@ -209,6 +211,12 @@ int main()
     // Initialise the micro:bit runtime.
     uBit.init();
 
+    MicroBitTemperatureService *tempService;
+    tempService = new MicroBitTemperatureService(*uBit.ble, uBit.thermometer);
+
+    MicroBitLEDService *ledService;
+    ledService = new MicroBitLEDService(*uBit.ble, uBit.display);
+
     // Configuration Tips
     //
     // config.json contains various Bluetooth related properties some of which are explained here:
@@ -252,12 +260,12 @@ int main()
 
 
     // Services/Pairing Config/Power Level
-    uBit.display.scroll("Hello World!");
+    uBit.display.scroll("Hello Car!");
 
     uBit.messageBus.listen(MICROBIT_ID_BLE, MICROBIT_BLE_EVT_CONNECTED, onConnected);
     uBit.messageBus.listen(MICROBIT_ID_BLE, MICROBIT_BLE_EVT_DISCONNECTED, onDisconnected);
     uBit.messageBus.listen(MES_DPAD_CONTROLLER, 0, onControllerEvent); 
-
+ 
     // If main exits, there may still be other fibers running or registered event handlers etc.
     // Simply release this fiber, which will mean we enter the scheduler. Worse case, we then
     // sit in the idle task forever, in a power efficient sleep.

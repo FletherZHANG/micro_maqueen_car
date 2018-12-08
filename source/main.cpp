@@ -211,12 +211,6 @@ int main()
     // Initialise the micro:bit runtime.
     uBit.init();
 
-    MicroBitTemperatureService *tempService;
-    tempService = new MicroBitTemperatureService(*uBit.ble, uBit.thermometer);
-
-    MicroBitLEDService *ledService;
-    ledService = new MicroBitLEDService(*uBit.ble, uBit.display);
-
     // Configuration Tips
     //
     // config.json contains various Bluetooth related properties some of which are explained here:
@@ -260,11 +254,14 @@ int main()
 
 
     // Services/Pairing Config/Power Level
-    uBit.display.scroll("Hello Car!");
+    //uBit.display.scroll("Hello Car!");
 
     uBit.messageBus.listen(MICROBIT_ID_BLE, MICROBIT_BLE_EVT_CONNECTED, onConnected);
     uBit.messageBus.listen(MICROBIT_ID_BLE, MICROBIT_BLE_EVT_DISCONNECTED, onDisconnected);
     uBit.messageBus.listen(MES_DPAD_CONTROLLER, 0, onControllerEvent); 
+
+    new MicroBitTemperatureService(*uBit.ble, uBit.thermometer);
+    new MicroBitLEDService(*uBit.ble, uBit.display);
  
     // If main exits, there may still be other fibers running or registered event handlers etc.
     // Simply release this fiber, which will mean we enter the scheduler. Worse case, we then

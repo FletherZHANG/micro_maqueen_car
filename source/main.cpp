@@ -78,6 +78,7 @@ enum ledSwitch
 };
 
 MicroBit uBit;
+uint8_t speed = 100;
 
 // we use events abd the 'connected' variable to keep track of the status of the Bluetooth connection
 void onConnected(MicroBitEvent)
@@ -154,8 +155,8 @@ void onControllerEvent(MicroBitEvent e)
     {
     case MES_DPAD_1_BUTTON_UP_ON:
         uBit.display.print("F");
-        motorRun(M1, CW, 150);
-        motorRun(M2, CW, 150);
+        motorRun(M1, CW, speed);
+        motorRun(M2, CW, speed);
         break;
 
     case MES_DPAD_1_BUTTON_UP_OFF:
@@ -192,6 +193,22 @@ void onControllerEvent(MicroBitEvent e)
         motorStopAll();
         break;
 
+    case MES_DPAD_2_BUTTON_UP_ON:
+        if (speed <= 240)
+        {
+            speed = speed + 20;
+        }
+
+        break;
+
+    case MES_DPAD_2_BUTTON_DOWN_ON:
+        if (speed >= 30)
+        {
+            speed = speed - 20;
+        }
+
+        break;
+
     case MES_DPAD_2_BUTTON_LEFT_ON:
         writeLED(ledLeft, turnOff);
         break;
@@ -203,7 +220,6 @@ void onControllerEvent(MicroBitEvent e)
     default:
         break;
     }
-
 }
 
 int main()
